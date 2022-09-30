@@ -35,8 +35,7 @@ jobs:
         run: |
           BRANCH=$(git rev-parse --abbrev-ref HEAD)
           DATE=$(date "+%Y-%m-%d")
-          gcloud auth application-default login
-          gsutil cp ./build.zip gs://dionricky-service/pinewood/build/${BRANCH}/build_${DATE}.zip
+          gcloud storage cp ./build.zip gs://dionricky-service/pinewood/build/${BRANCH}/build_${DATE}.zip
 
       - name: 'Deploy to Cloud Functions'
         run: |
