@@ -7,7 +7,7 @@ on:
       - '!master'
 jobs:
   zip-n-deploy:
-  
+    
     permissions:
         contents: 'read'
         id-token: 'write'
