@@ -6,7 +6,7 @@ on:
       - '!main'
       - '!master'
 jobs:
-  zip-n-deploy:
+  build-n-deploy:
     
     permissions:
         contents: 'read'
@@ -23,5 +23,27 @@ jobs:
           workload_identity_provider: 'projects/172073939371/locations/global/workloadIdentityPools/qa-pool/providers/gh-provider'
           service_account: 'pinewood-qa@dionricky-personal.iam.gserviceaccount.com'
       
-      - name: 'Set default gcloud project'
-        run: gcloud config set project "dionricky-personal"
+      - name: 'Install apt dependency'
+        run: sudo apt-get update && sudo apt-get install zip
+
+      - name: 'Build pinewood'
+        run: ./build.sh
+        shell: bash
+
+      - name: 'Upload build to GCS'
+        run: |
+          BRANCH=$(git rev-parse --abbrev-ref HEAD)
+          DATE=$(date "+%Y-%m-%d")
+          gsutil cp ./build.zip gs://dionricky-service/pinewood/build/${BRANCH}/build_${DATE}.zip
+
+      - name: 'Deploy to Cloud Functions'
+        run: |
+          BRANCH=$(git rev-parse --abbrev-ref HEAD)
+          DATE=$(date "+%Y-%m-%d")
+          gcloud functions deploy pinewood-main \
+            --gen2 \
+            --region='us-east1' \
+            --runtime='python39' \
+            --source='gs://dionricky-service/pinewood/build/${BRANCH}/build_${DATE}.zip' \
+            --entry-point='main' \
+            --trigger-topic='trigger_pinewood'
