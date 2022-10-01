@@ -22,9 +22,6 @@ jobs:
         with:
           workload_identity_provider: 'projects/172073939371/locations/global/workloadIdentityPools/qa-pool/providers/gh-provider'
           service_account: 'pinewood-qa@dionricky-personal.iam.gserviceaccount.com'
-      
-      - name: 'Install apt dependency'
-        run: sudo apt-get update && sudo apt-get install zip
 
       - name: 'Build pinewood'
         run: |
