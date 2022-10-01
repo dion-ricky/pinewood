@@ -62,4 +62,4 @@ jobs:
             --runtime='python39' \
             --source="gs://dionricky-service/pinewood/build/${BRANCH}/build_${DATE}.zip" \
             --entry-point='main' \
-            --trigger-topic='trigger_pinewood'
+            --trigger-topic='trigger_qa_pinewood'
