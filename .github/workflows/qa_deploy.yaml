@@ -23,17 +23,18 @@ jobs:
           workload_identity_provider: 'projects/172073939371/locations/global/workloadIdentityPools/qa-pool/providers/gh-provider'
           service_account: 'pinewood-qa@dionricky-personal.iam.gserviceaccount.com'
 
+      - name: 'Export service account secrets'
+        uses: jsdaniell/create-json@1.1.2
+        with:
+          name: "gdrive.json"
+          json: ${{ secrets.GDRIVE_QA }}
+
       - name: 'Build pinewood'
-        shell: bash
-        env:
-          GDRIVE_SA: ${{ secrets.GDRIVE_QA }}
         run: |
           mkdir build && cp main.py ./build && cp requirements.txt ./build
           cd build
           mkdir secrets
-          cd secrets
-          echo $env:GDRIVE_SA > gdrive.json
-          cd ..
+          mv ../gdrive.json ./secrets
           zip -r ../build.zip *
           cd ..
 
