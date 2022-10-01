@@ -12,11 +12,11 @@ from google.cloud.bigquery import (
     WriteDisposition
 )
 
-from bq import BQClient
-from gcs import GCSClient
-from config import TABLES
-from gdrive import GDriveClient
-from utils import sqlite_to_jsonl
+from localpkg.bq import BQClient
+from localpkg.gcs import GCSClient
+from localpkg.config import TABLES
+from localpkg.gdrive import GDriveClient
+from localpkg.utils import sqlite_to_jsonl
 
 
 @functions_framework.cloud_event
