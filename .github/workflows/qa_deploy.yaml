@@ -2,11 +2,11 @@ name: qa-deployer
 on:
   push:
     branches:
-      - '*'
+      - '**'
       - '!main'
       - '!master'
 jobs:
-  zip-n-deploy:
+  build-n-deploy:
     
     permissions:
         contents: 'read'
@@ -23,12 +23,25 @@ jobs:
           workload_identity_provider: 'projects/172073939371/locations/global/workloadIdentityPools/qa-pool/providers/gh-provider'
           service_account: 'pinewood-qa@dionricky-personal.iam.gserviceaccount.com'
 
-      - name: 'Install gcloud CLI'
+      - name: 'Build pinewood'
         run: |
-          sudo apt-get install apt-transport-https ca-certificates gnupg \
-          echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list \
-          curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo tee /usr/share/keyrings/cloud.google.gpg \
-          sudo apt-get update && sudo apt-get install google-cloud-cli \
+          mkdir build && cp main.py ./build && cp requirements.txt ./build
+          cd build && zip -r ../build.zip *; cd ..
 
-      - name: 'Set default gcloud project'
-        run: gcloud config set project "dionricky-personal"
+      - name: 'Upload build to GCS'
+        run: |
+          BRANCH=$(git rev-parse --abbrev-ref HEAD)
+          DATE=$(date "+%Y-%m-%d")
+          gcloud storage cp ./build.zip gs://dionricky-service/pinewood/build/${BRANCH}/build_${DATE}.zip
+
+      - name: 'Deploy to Cloud Functions'
+        run: |
+          BRANCH=$(git rev-parse --abbrev-ref HEAD)
+          DATE=$(date "+%Y-%m-%d")
+          gcloud functions deploy pinewood-mm-qa \
+            --gen2 \
+            --region='us-east1' \
+            --runtime='python39' \
+            --source="gs://dionricky-service/pinewood/build/${BRANCH}/build_${DATE}.zip" \
+            --entry-point='main' \
+            --trigger-topic='trigger_pinewood'
