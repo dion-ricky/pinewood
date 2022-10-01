@@ -1,1 +1,5 @@
 venv
+.todo
+.secrets
+
+*.pyc

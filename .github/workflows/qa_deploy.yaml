@@ -38,7 +38,7 @@ jobs:
         run: |
           BRANCH=$(git rev-parse --abbrev-ref HEAD)
           DATE=$(date "+%Y-%m-%d")
-          gcloud functions deploy pinewood-main \
+          gcloud functions deploy pinewood_mm_qa \
             --gen2 \
             --region='us-east1' \
             --runtime='python39' \
