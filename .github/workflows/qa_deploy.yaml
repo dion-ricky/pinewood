@@ -1,0 +1,65 @@
+name: qa-deployer
+on:
+  push:
+    branches:
+      - '**'
+      - '!main'
+      - '!master'
+jobs:
+  build-n-deploy:
+    
+    permissions:
+        contents: 'read'
+        id-token: 'write'
+
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - id: 'auth'
+        name: 'Authenticate to Google Cloud'
+        uses: 'google-github-actions/auth@v0'
+        with:
+          workload_identity_provider: 'projects/172073939371/locations/global/workloadIdentityPools/qa-pool/providers/gh-provider'
+          service_account: 'pinewood-qa@dionricky-personal.iam.gserviceaccount.com'
+
+      - name: 'Export gdrive service account secrets'
+        uses: jsdaniell/create-json@1.1.2
+        with:
+          name: "gdrive.json"
+          json: ${{ secrets.GDRIVE_QA }}
+      
+      - name: 'Export pinewood service account secrets'
+        uses: jsdaniell/create-json@1.1.2
+        with:
+          name: "pinewood.json"
+          json: ${{ secrets.PINEWOOD_QA }}
+
+      - name: 'Build pinewood'
+        run: |
+          mkdir build && cp main.py ./build && cp requirements.txt ./build
+          cp -r localpackage ./build/localpackage
+          cd build
+          mkdir secrets
+          mv ../gdrive.json ./secrets
+          mv ../pinewood.json ./secrets
+          zip -r ../build.zip *
+          cd ..
+
+      - name: 'Upload build to GCS'
+        run: |
+          BRANCH=$(git rev-parse --abbrev-ref HEAD)
+          DATE=$(date "+%Y-%m-%d")
+          gcloud storage cp ./build.zip gs://dionricky-service/pinewood/build/${BRANCH}/build_${DATE}.zip
+
+      - name: 'Deploy to Cloud Functions'
+        run: |
+          BRANCH=$(git rev-parse --abbrev-ref HEAD)
+          DATE=$(date "+%Y-%m-%d")
+          gcloud functions deploy pinewood-mm-qa \
+            --gen2 \
+            --region='us-east1' \
+            --runtime='python39' \
+            --source="gs://dionricky-service/pinewood/build/${BRANCH}/build_${DATE}.zip" \
+            --entry-point='main' \
+            --trigger-topic='trigger_qa_pinewood'
