@@ -24,9 +24,18 @@ jobs:
           service_account: 'pinewood-qa@dionricky-personal.iam.gserviceaccount.com'
 
       - name: 'Build pinewood'
+        shell: bash
+        env:
+          GDRIVE_SA: ${{ secrets.GDRIVE_QA }}
         run: |
           mkdir build && cp main.py ./build && cp requirements.txt ./build
-          cd build && zip -r ../build.zip *; cd ..
+          cd build
+          mkdir .secrets
+          cd .secrets
+          echo $env:GDRIVE_SA > gdrive.json
+          cd ..
+          zip -r ../build.zip *
+          cd ..
 
       - name: 'Upload build to GCS'
         run: |
