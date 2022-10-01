@@ -30,8 +30,8 @@ jobs:
         run: |
           mkdir build && cp main.py ./build && cp requirements.txt ./build
           cd build
-          mkdir .secrets
-          cd .secrets
+          mkdir secrets
+          cd secrets
           echo $env:GDRIVE_SA > gdrive.json
           cd ..
           zip -r ../build.zip *
