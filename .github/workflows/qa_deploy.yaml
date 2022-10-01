@@ -23,10 +23,28 @@ jobs:
           workload_identity_provider: 'projects/172073939371/locations/global/workloadIdentityPools/qa-pool/providers/gh-provider'
           service_account: 'pinewood-qa@dionricky-personal.iam.gserviceaccount.com'
 
+      - name: 'Export gdrive service account secrets'
+        uses: jsdaniell/create-json@1.1.2
+        with:
+          name: "gdrive.json"
+          json: ${{ secrets.GDRIVE_QA }}
+      
+      - name: 'Export pinewood service account secrets'
+        uses: jsdaniell/create-json@1.1.2
+        with:
+          name: "pinewood.json"
+          json: ${{ secrets.PINEWOOD_QA }}
+
       - name: 'Build pinewood'
         run: |
           mkdir build && cp main.py ./build && cp requirements.txt ./build
-          cd build && zip -r ../build.zip *; cd ..
+          cp -r localpackage ./build/localpackage
+          cd build
+          mkdir secrets
+          mv ../gdrive.json ./secrets
+          mv ../pinewood.json ./secrets
+          zip -r ../build.zip *
+          cd ..
 
       - name: 'Upload build to GCS'
         run: |
