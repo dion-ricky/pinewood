@@ -3,6 +3,7 @@ import shutil
 import tempfile
 import posixpath
 from datetime import datetime, time, timedelta
+from base64 import b64decode
 
 import pytz
 import functions_framework
@@ -22,12 +23,11 @@ from localpackage.utils import sqlite_to_jsonl
 @functions_framework.cloud_event
 def main(cloud_event):
     data = cloud_event.data
-
-    print(data)
+    message = b64decode(data['message']['data']).decode('utf-8')
 
     execution_date = datetime.combine(datetime.today(), time.min)
 
-    if data != 'OK':
+    if message != 'OK':
         execution_date = datetime.strptime(data, '%Y-%m-%d %H:%M:%S')
 
     execution_date = execution_date.replace(tzinfo=pytz.timezone('Asia/Jakarta'))
