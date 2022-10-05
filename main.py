@@ -21,8 +21,14 @@ from localpackage.utils import sqlite_to_jsonl
 
 @functions_framework.cloud_event
 def main(cloud_event):
+    data = cloud_event.data
+
     execution_date = datetime.combine(datetime.today(), time.min)
-    execution_date.replace(tzinfo=pytz.timezone('Asia/Jakarta'))
+
+    if data != 'OK':
+        execution_date = datetime.strptime(data, '%Y-%m-%d %H:%M:%S')
+
+    execution_date = execution_date.replace(tzinfo=pytz.timezone('Asia/Jakarta'))
 
     temp_dir = os.path.join(tempfile.gettempdir(), 'pinewood')
     if not os.path.exists(temp_dir):
