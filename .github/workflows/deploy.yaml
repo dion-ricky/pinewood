@@ -38,6 +38,8 @@ jobs:
         run: |
           mkdir build && cp main.py ./build && cp requirements.txt ./build
           cp -r localpackage ./build/localpackage
+          mkdir -p build/config
+          cp config/accounting_config.prod.json ./build/config/accounting_config.json
           cd build
           mkdir secrets
           mv ../gdrive.json ./secrets
