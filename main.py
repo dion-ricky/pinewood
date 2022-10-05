@@ -1,4 +1,5 @@
 import os
+import json
 import shutil
 import tempfile
 import posixpath
@@ -87,13 +88,15 @@ def accounting_export(context):
 
 def accounting_upload(context):
     print("Begin uploading accounting data to GCS")
+    config = json.load(open('config/accounting_config.json'))
+
     execution_date: datetime = context['execution_date']
     execution_date_s = execution_date.strftime("%Y-%m-%d")
 
     keyfile_path = 'secrets/pinewood.json'
     gcs_client = GCSClient(keyfile_path)
     storage = gcs_client.client
-    bucket_name = 'dionricky-service'
+    bucket_name = config.get('upload_bucket')
 
     bucket = storage.bucket(bucket_name)
 
@@ -126,6 +129,8 @@ def accounting_upload(context):
 
 def accounting_load(context):
     print("Begin loading accounting data to BQ")
+    config = json.load(open('config/accounting_config.json'))
+
     keyfile_path = 'secrets/pinewood.json'
     bq_client = BQClient(keyfile_path)
     bigquery = bq_client.client
@@ -136,7 +141,9 @@ def accounting_load(context):
         job_config.write_disposition = WriteDisposition.WRITE_TRUNCATE
         job_config.autodetect = True
 
-        dest_table = 'dionricky-personal.personal_accounting'
+        dest_project_id = config.get("project_id")
+        dest_dataset = config.get("dataset_id")
+        dest_table = f"{dest_project_id}.{dest_dataset}"
         dest_table = dest_table + '.' + os.path.basename(path).split('.')[0]
         bigquery.load_table_from_uri([path], dest_table, job_config=job_config)
     
