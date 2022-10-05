@@ -23,6 +23,8 @@ from localpackage.utils import sqlite_to_jsonl
 def main(cloud_event):
     data = cloud_event.data
 
+    print(data)
+
     execution_date = datetime.combine(datetime.today(), time.min)
 
     if data != 'OK':
