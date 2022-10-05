@@ -28,7 +28,7 @@ def main(cloud_event):
     execution_date = datetime.combine(datetime.today(), time.min)
 
     if message != 'OK':
-        execution_date = datetime.strptime(data, '%Y-%m-%d %H:%M:%S')
+        execution_date = datetime.strptime(message, '%Y-%m-%d %H:%M:%S')
 
     execution_date = execution_date.replace(tzinfo=pytz.timezone('Asia/Jakarta'))
 
