@@ -38,7 +38,7 @@ jobs:
       - name: 'Build pinewood'
         run: |
           mkdir build && cp main.py ./build && cp requirements.txt ./build
-          rsync ./ ./build --exclude build
+          rsync -av ./ ./build --exclude build
           cd build
           zip -r ../build.zip *
           cd ..
