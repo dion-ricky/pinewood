@@ -1,10 +1,10 @@
 from localpackage.gdrive import GDriveClient
 
-from localpackage.models.pipeline import Pipeline
+from models.pipeline import Pipeline
 
-from localpackage.operators.python_operator import PythonOperator
+from operators.python_operator import PythonOperator
 
-from localpackage.contrib.accounting import (
+from contrib.accounting import (
     accounting_export,
     accounting_upload,
     accounting_load
