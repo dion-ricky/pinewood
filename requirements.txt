@@ -1,3 +1,4 @@
+attrs==22.1.0
 functions-framework==3.*
 google-cloud-storage==2.5.0
 google-api-python-client==2.63.0
