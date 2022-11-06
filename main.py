@@ -9,8 +9,8 @@ from collections import deque
 import pytz
 import functions_framework
 
-from localpackage.models.context import Context
-from localpackage.models.comms import Comms
+from models.context import Context
+from models.comms import Comms
 
 
 @functions_framework.cloud_event
