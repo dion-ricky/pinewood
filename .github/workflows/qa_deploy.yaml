@@ -43,9 +43,9 @@ jobs:
           mkdir secrets
           mv ./gdrive.json ./secrets
           mv ./pinewood.json ./secrets
-          rsync -av ./ ./build --exclude build
+          rsync -av ./ ./build --exclude build --exclude .git
           cd build
-          zip -r ../build.zip *
+          zip -r ../build.zip .
           cd ..
 
       - name: 'Upload build to GCS'
