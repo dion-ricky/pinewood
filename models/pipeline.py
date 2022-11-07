@@ -7,15 +7,19 @@ from croniter import croniter
 from models.base_operator import BaseOperator
 from models.context import Context
 
+from localpackage.utils.logging import get_logger
+
 
 class Pipeline:
     def __init__(self, pipeline_id, schedule) -> None:
+        self.log = get_logger('Pipeline')
         self.pipeline_id = pipeline_id
         self.schedule = schedule
         self.tasks: List[BaseOperator] = []
 
         try:
             self.context = Context()
+            self.log.debug(f"Pipeline {self.pipeline_id} is initialized")
         except TypeError:
             raise Exception("Pipeline should only be called from main!")
 
@@ -29,6 +33,7 @@ class Pipeline:
 
     def register_task(self, task: BaseOperator):
         if isinstance(task, BaseOperator):
+            self.log.debug(f"Task {task.task_id} is registered into {self.pipeline_id}")
             self.tasks.append(task)
 
     def head(self) -> List[BaseOperator]:
@@ -47,19 +52,26 @@ class Pipeline:
         return croniter.match(self.schedule, execution_date)
 
     def exec(self):
+        self.log.info(f"Executing {self.pipeline_id}")
         context = self.context
         if not self.is_valid_scheduled_run():
+            self.log.debug(f"This is not a valid scheduled run")
             return
 
+        logger = self.log
         def _exec_task(task: BaseOperator, context):
             error_raised = False
+            logger.debug(f"Executing pre-exec lifecycle of task {task.task_id}")
             task.pre_exec()
             try:
+                logger.debug(f"Executing task {task.task_id}")
                 task.exec(context)
             except Exception as e:
+                logger.debug(f"Got error raised from task {task.task_id}")
                 error_raised = True
                 raise e
             finally:
+                logger.debug(f"Executing post-exec lifecycle of task {task.task_id}")
                 task.post_exec(error_raised)
 
         def _is_task_valid_to_run(task: BaseOperator):
@@ -87,6 +99,7 @@ class Pipeline:
                     _exec_task(t, context)
                     next.extend(t.downstream)
                 else:
+                    self.log.debug(f"Task {t.task_id} is not valid for execution. Reason: upstream is not in state success.")
                     next.append(t)
 
 

@@ -37,6 +37,8 @@ jobs:
 
       - name: 'Build pinewood'
         run: |
+          rm -f .env .env.prod
+          mv .env.qa .env
           mkdir build && cp main.py ./build && cp requirements.txt ./build
           mkdir secrets
           mv ./gdrive.json ./secrets
