@@ -11,10 +11,11 @@ from localpackage.utils.logging import get_logger
 
 
 class Pipeline:
-    def __init__(self, pipeline_id, schedule) -> None:
+    def __init__(self, pipeline_id, schedule, start_date) -> None:
         self.log = get_logger('Pipeline')
         self.pipeline_id = pipeline_id
         self.schedule = schedule
+        self.start_date = start_date
         self.tasks: List[BaseOperator] = []
 
         try:
@@ -48,8 +49,9 @@ class Pipeline:
         execution_date = self.context.execution_date
         # Snap to xx:00:00:00 due to delay in trigger.
         # Override this if the schedule is minute-specific.
-        execution_date.replace(minute=0, second=0, microsecond=0)
-        return croniter.match(self.schedule, execution_date)
+        execution_date = execution_date.replace(minute=0, second=0, microsecond=0)
+        cron = croniter(self.schedule, self.start_date)
+        return cron.match(self.schedule, execution_date)
 
     def exec(self):
         self.log.info(f"Executing {self.pipeline_id}")
