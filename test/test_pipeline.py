@@ -28,7 +28,8 @@ Context(
 
 with Pipeline(
     'test_pipeline',
-    schedule='* * * * *'
+    schedule='* * * * *',
+    start_date=datetime(2022, 11, 7)
 ) as pipeline:
     t1 = PythonOperator(
         't1',

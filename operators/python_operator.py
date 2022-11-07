@@ -27,4 +27,4 @@ class PythonOperator(BaseOperator):
         if self.provide_context:
             kwargs.update({'context': context})
 
-        self.python_callable(*args, *kwargs)
+        self.python_callable(*args, **kwargs)
