@@ -49,9 +49,8 @@ class Pipeline:
         execution_date = self.context.execution_date
         # Snap to xx:00:00:00 due to delay in trigger.
         # Override this if the schedule is minute-specific.
-        execution_date = execution_date.replace(minute=0, second=0, microsecond=0)
-        cron = croniter(self.schedule, self.start_date)
-        return cron.match(self.schedule, execution_date)
+        execution_date = execution_date.replace(minute=0, second=0, microsecond=0, tzinfo=None)
+        return croniter.match(self.schedule, execution_date)
 
     def exec(self):
         self.log.info(f"Executing {self.pipeline_id}")

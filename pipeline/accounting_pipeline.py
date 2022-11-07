@@ -18,7 +18,7 @@ from contrib.accounting import (
 with Pipeline(
     pipeline_id='accounting',
     schedule='0 12 * * *',
-    start_date=datetime(2022, 11, 5, 12, tzinfo=pytz.timezone('Asia/Jakarta'))
+    start_date=datetime(2022, 11, 5, 12)
 ) as pipeline:
     keyfile_path = 'secrets/gdrive.json'
     gdrive = GDriveClient(keyfile_path)
