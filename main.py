@@ -60,10 +60,12 @@ def _main(data):
                     pipelines.append(pipeline)
 
     for pipeline in pipelines:
+        logger.debug("Executing pipeline")
         exec(pipeline)
 
     cleanup(temp_dir)
 
 
 def cleanup(temp_dir):
+    logger.debug(f"Deleting {temp_dir}")
     shutil.rmtree(temp_dir)

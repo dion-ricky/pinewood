@@ -2,6 +2,7 @@ import os
 import sys
 import tokenize
 from pathlib import Path
+from collections import deque
 from datetime import datetime, timezone
 
 path_root = Path(__file__).parents[1]
@@ -18,7 +19,7 @@ Context(
     comms=Comms()
 )
 
-pipelines = []
+pipelines = deque()
 
 for dirpath, _dirnames, filenames in os.walk('./test/pipeline'):
         for fn in filenames:
