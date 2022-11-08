@@ -36,15 +36,16 @@ jobs:
 
       - name: 'Build pinewood'
         run: |
-          mkdir build && cp main.py ./build && cp requirements.txt ./build
-          cp -r localpackage ./build/localpackage
-          mkdir -p build/config
-          cp config/accounting_config.prod.json ./build/config/accounting_config.json
-          cd build
+          rm -f .env .env.qa
+          mv .env.prod .env
+          mkdir build
           mkdir secrets
-          mv ../gdrive.json ./secrets
-          mv ../pinewood.json ./secrets
-          zip -r ../build.zip *
+          mv ./gdrive.json ./secrets
+          mv ./pinewood.json ./secrets
+          rsync -av ./ ./build --exclude build --exclude .git
+          mv ./build/config/accounting_config.prod.json ./build/config/accounting_config.json
+          cd build
+          zip -r ../build.zip .
           cd ..
 
       - name: 'Upload build to GCS'
