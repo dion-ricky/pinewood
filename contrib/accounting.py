@@ -23,7 +23,7 @@ logger = logging.get_logger(__name__)
 
 
 def accounting_export(gdrive, context: Context):
-    print("Begin exporting accounting data")
+    logger.info("Begin exporting accounting data")
     execution_date = context.execution_date
     yesterday_date = execution_date - timedelta(days=1)
     yesterday_date_s = "{dt.month}-{dt.day}-{year}" \
@@ -32,9 +32,14 @@ def accounting_export(gdrive, context: Context):
 
     output_dir = context.temp_dir
 
+    logger.debug(f"Looking for pattern MMAuto[.+]({yesterday_date_s}-d).mmbak")
     re_pattern = r'MMAuto\[.+]\(' + yesterday_date_s + r'-\d+\).mmbak'
     gdrive: GDriveClient = gdrive
     file = gdrive.get_file_by_regex(re_pattern)
+
+    if file is None:
+        logger.error("Not found file that match the specified pattern")
+        raise Exception("Not found file that match the specified pattern")
 
     output_fn = file.get('name')
     output_path = os.path.join(output_dir, output_fn)
@@ -59,7 +64,7 @@ def accounting_export(gdrive, context: Context):
 
 
 def accounting_upload(context: Context):
-    print("Begin uploading accounting data to GCS")
+    logger.info("Begin uploading accounting data to GCS")
     config = json.load(open('config/accounting_config.json'))
 
     execution_date: datetime = context.execution_date
@@ -103,7 +108,7 @@ def accounting_upload(context: Context):
 
 
 def accounting_load(context: Context):
-    print("Begin loading accounting data to BQ")
+    logger.info("Begin loading accounting data to BQ")
     config = json.load(open('config/accounting_config.json'))
 
     keyfile_path = 'secrets/pinewood.json'
@@ -124,4 +129,4 @@ def accounting_load(context: Context):
         bigquery.load_table_from_uri([path], dest_table, job_config=job_config)
         logger.debug(f"Finished loading {path} to {dest_table}")
     
-    logging.info("Finished loading accounting data to BQ")
+    logger.info("Finished loading accounting data to BQ")
