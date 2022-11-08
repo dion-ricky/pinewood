@@ -43,8 +43,8 @@ jobs:
           mkdir secrets
           mv ./gdrive.json ./secrets
           mv ./pinewood.json ./secrets
-          rsync -av ./ ./build --exclude build --exclude .git --exclude config
-          cp ./config/accounting_config.qa.json ./build/config/accounting_config.json
+          rsync -av ./ ./build --exclude build --exclude .git
+          mv ./build/config/accounting_config.qa.json ./build/config/accounting_config.json
           cd build
           zip -r ../build.zip .
           cd ..
