@@ -56,7 +56,7 @@ class Pipeline:
         self.log.info(f"Executing {self.pipeline_id}")
         context = self.context
         if not self.is_valid_scheduled_run():
-            self.log.debug(f"This is not a valid scheduled run")
+            self.log.info(f"This is not a valid scheduled run")
             return
 
         logger = self.log
